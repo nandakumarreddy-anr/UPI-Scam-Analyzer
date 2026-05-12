@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Forgot Password</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body{
+            background: linear-gradient(135deg,#1e3a8a,#2563eb,#60a5fa);
+            overflow: hidden;
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%{
+                transform: translateY(0px);
+            }
+            50%{
+                transform: translateY(-10px);
+            }
+            100%{
+                transform: translateY(0px);
+            }
+        }
+
+        .floating{
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Glass effect */
+        .glass{
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* 3D hover */
+        .card-3d{
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card-3d:hover{
+            transform: rotateY(6deg) rotateX(4deg) scale(1.02);
+            box-shadow: 0 25px 40px rgba(0,0,0,0.3);
+        }
+
+        /* Input focus */
+        .input-box:focus{
+            transform: scale(1.02);
+        }
+
+        /* Glow */
+        .glow{
+            box-shadow: 0 0 20px rgba(59,130,246,0.5);
+        }
+    </style>
+
+</head>
+
+<body class="h-screen flex items-center justify-center relative">
+
+    <!-- Background Circles -->
+    <div class="absolute top-10 left-10 w-72 h-72 bg-blue-400 rounded-full opacity-20 blur-3xl"></div>
+    <div class="absolute bottom-10 right-10 w-72 h-72 bg-cyan-300 rounded-full opacity-20 blur-3xl"></div>
+
+    <!-- Forgot Password Card -->
+    <div class="glass card-3d p-10 rounded-3xl shadow-2xl w-[420px] text-center relative z-10">
+
+        <!-- Icon -->
+        <div class="text-6xl mb-4 floating">
+            🔐
+        </div>
+
+        <!-- Title -->
+        <h2 class="text-3xl font-bold text-white mb-2">
+            Forgot Password
+        </h2>
+
+        <p class="text-blue-100 mb-8">
+            Enter your email address to receive OTP verification
+        </p>
+
+        <!-- Form -->
+        <form method="POST">
+
+            <!-- Email -->
+            <input 
+                name="email" 
+                type="email"
+                placeholder="Enter your email"
+                required
+                class="input-box w-full p-4 rounded-xl bg-white/90 border-none outline-none mb-5 shadow transition duration-300"
+            >
+
+            <!-- Button -->
+            <button 
+                class="w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-3 rounded-xl font-semibold shadow-lg hover:scale-105 hover:shadow-2xl transition duration-300 glow"
+            >
+                ✉️ Send OTP
+            </button>
+
+        </form>
+
+        <!-- Divider -->
+        <div class="flex items-center my-6">
+            <div class="flex-1 h-px bg-blue-200"></div>
+            <span class="px-3 text-blue-100 text-sm">Secure Recovery</span>
+            <div class="flex-1 h-px bg-blue-200"></div>
+        </div>
+
+        <!-- Back -->
+        <div>
+            <a href="/login"
+               class="text-white hover:text-cyan-200 transition font-medium">
+                ← Back to Login
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        body{
+            background: linear-gradient(135deg,#e0f2fe,#f8fafc);
+        }
+
+        /* Glass effect */
+        .glass{
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%{
+                transform: translateY(0px);
+            }
+            50%{
+                transform: translateY(-8px);
+            }
+            100%{
+                transform: translateY(0px);
+            }
+        }
+
+        .floating{
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* 3D card */
+        .card-3d{
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card-3d:hover{
+            transform: rotateY(5deg) rotateX(3deg) scale(1.01);
+            box-shadow: 0 30px 40px rgba(0,0,0,0.25);
+        }
+
+        /* Table row hover */
+        tbody tr{
+            transition: 0.3s;
+        }
+
+        tbody tr:hover{
+            transform: scale(1.01);
+            background: #f8fafc;
+        }
+
+        /* Input */
+        .input-box{
+            transition: 0.3s;
+        }
+
+        .input-box:focus{
+            transform: scale(1.02);
+        }
+
+        /* Glow */
+        .glow{
+            box-shadow: 0 0 25px rgba(59,130,246,0.5);
+        }
+
+    </style>
+
+</head>
+
+<body class="p-8">
+
+<!-- Header -->
+<div class="flex justify-between items-center mb-8">
+
+    <div>
+        <h1 class="text-4xl font-bold text-gray-800 floating">
+            ⚙️ Admin Panel
+        </h1>
+
+        <p class="text-gray-500 mt-2">
+            Manage blacklisted UPI IDs and malicious URLs
+        </p>
+    </div>
+
+    <a href="/dashboard"
+       class="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-5 py-3 rounded-2xl shadow-lg hover:scale-105 transition">
+        ⬅ Dashboard
+    </a>
+
+</div>
+
+<!-- Add Blacklist -->
+<div class="glass card-3d p-8 rounded-3xl shadow-2xl mb-10">
+
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+        ➕ Add Blacklist Entry
+    </h2>
+
+    <form method="POST" class="space-y-5">
+
+        <!-- Data -->
+        <input 
+            name="data"
+            placeholder="Enter UPI ID or URL"
+            required
+            class="input-box w-full p-4 rounded-2xl border-none outline-none shadow-lg"
+        >
+
+        <!-- Type -->
+        <select 
+            name="type"
+            class="input-box w-full p-4 rounded-2xl border-none outline-none shadow-lg"
+        >
+            <option value="UPI">💳 UPI</option>
+            <option value="URL">🔗 URL</option>
+        </select>
+
+        <!-- Reason -->
+        <input 
+            name="reason"
+            placeholder="Reason for blacklist"
+            required
+            class="input-box w-full p-4 rounded-2xl border-none outline-none shadow-lg"
+        >
+
+        <!-- Button -->
+        <button 
+            class="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-8 py-3 rounded-2xl font-bold shadow-xl hover:scale-105 transition duration-300 glow"
+        >
+            🚀 Add to Blacklist
+        </button>
+
+    </form>
+
+</div>
+
+<!-- Blacklist Table -->
+<div class="glass card-3d rounded-3xl shadow-2xl overflow-hidden">
+
+    <div class="p-6 border-b">
+
+        <h2 class="text-2xl font-bold text-gray-800">
+            🚫 Blacklist Database
+        </h2>
+
+    </div>
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full border-collapse">
+
+            <!-- Header -->
+            <thead class="bg-gradient-to-r from-blue-700 to-blue-500 text-white">
+
+                <tr>
+                    <th class="p-4 text-left">🆔 ID</th>
+                    <th class="p-4 text-left">📄 Data</th>
+                    <th class="p-4 text-center">📌 Type</th>
+                    <th class="p-4 text-left">⚠️ Reason</th>
+                    <th class="p-4 text-center">🗑️ Action</th>
+                </tr>
+
+            </thead>
+
+            <!-- Body -->
+            <tbody class="bg-white/90">
+
+                {% for item in items %}
+                <tr class="border-b">
+
+                    <!-- ID -->
+                    <td class="p-4 font-semibold text-gray-700">
+                        {{ item[0] }}
+                    </td>
+
+                    <!-- Data -->
+                    <td class="p-4 break-all text-gray-700">
+                        {{ item[1] }}
+                    </td>
+
+                    <!-- Type -->
+                    <td class="p-4 text-center">
+
+                        {% if item[2] == "UPI" %}
+                        <span class="bg-green-100 text-green-700 px-4 py-1 rounded-full font-semibold shadow">
+                            💳 UPI
+                        </span>
+
+                        {% else %}
+                        <span class="bg-blue-100 text-blue-700 px-4 py-1 rounded-full font-semibold shadow">
+                            🔗 URL
+                        </span>
+                        {% endif %}
+
+                    </td>
+
+                    <!-- Reason -->
+                    <td class="p-4 text-gray-700">
+                        {{ item[3] }}
+                    </td>
+
+                    <!-- Delete -->
+                    <td class="p-4 text-center">
+
+                        <form method="POST" action="/delete_blacklist/{{ item[0] }}">
+
+                            <button 
+                                onclick="return confirm('Delete this blacklist item?')"
+                                class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded-xl shadow hover:scale-105 transition"
+                            >
+                                🗑 Delete
+                            </button>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <!-- Empty -->
+    {% if items|length == 0 %}
+    <div class="p-10 text-center">
+
+        <div class="text-6xl mb-4">
+            📂
+        </div>
+
+        <h3 class="text-2xl font-bold text-gray-700 mb-2">
+            No Blacklist Data
+        </h3>
+
+        <p class="text-gray-500">
+            Added blacklist records will appear here.
+        </p>
+
+    </div>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

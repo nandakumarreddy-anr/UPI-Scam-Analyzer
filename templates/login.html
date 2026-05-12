@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        body{
+            overflow: hidden;
+            background: linear-gradient(135deg,#0f172a,#1d4ed8,#38bdf8);
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%{
+                transform: translateY(0px);
+            }
+            50%{
+                transform: translateY(-10px);
+            }
+            100%{
+                transform: translateY(0px);
+            }
+        }
+
+        .floating{
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Glassmorphism */
+        .glass{
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        /* 3D hover effect */
+        .card-3d{
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card-3d:hover{
+            transform: rotateY(6deg) rotateX(4deg) scale(1.02);
+            box-shadow: 0 30px 40px rgba(0,0,0,0.35);
+        }
+
+        /* Glow effect */
+        .glow{
+            box-shadow: 0 0 25px rgba(59,130,246,0.6);
+        }
+
+        /* Input animation */
+        .input-box{
+            transition: 0.3s;
+        }
+
+        .input-box:focus{
+            transform: scale(1.02);
+        }
+
+        /* Blur circles */
+        .circle{
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.3;
+        }
+
+    </style>
+
+</head>
+
+<body class="flex items-center justify-center h-screen relative text-white">
+
+    <!-- Background Effects -->
+    <div class="circle bg-blue-400 w-96 h-96 top-0 left-0"></div>
+    <div class="circle bg-cyan-300 w-96 h-96 bottom-0 right-0"></div>
+
+    <!-- Login Card -->
+    <div class="glass card-3d p-10 rounded-3xl shadow-2xl w-[420px] relative z-10">
+
+        <!-- Logo -->
+        <div class="text-center mb-6">
+
+            <div class="text-6xl mb-3 floating">
+                🔐
+            </div>
+
+            <h2 class="text-4xl font-bold">
+                Welcome Back
+            </h2>
+
+            <p class="text-blue-100 mt-2">
+                Login to continue secure scam detection
+            </p>
+
+        </div>
+
+        <!-- Form -->
+        <form method="POST" class="space-y-5">
+
+            <!-- Email -->
+            <div>
+                <input 
+                    type="email"
+                    name="email"
+                    placeholder="Enter Email"
+                    required
+                    class="input-box w-full p-4 rounded-xl bg-white/90 text-black border-none outline-none shadow"
+                >
+            </div>
+
+            <!-- Password -->
+            <div>
+                <input 
+                    type="password"
+                    name="password"
+                    placeholder="Enter Password"
+                    required
+                    class="input-box w-full p-4 rounded-xl bg-white/90 text-black border-none outline-none shadow"
+                >
+            </div>
+
+            <!-- Login Button -->
+            <button 
+                type="submit"
+                class="w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-3 rounded-xl font-bold text-lg shadow-xl hover:scale-105 transition duration-300 glow"
+            >
+                🚀 Login
+            </button>
+
+        </form>
+
+        <!-- Divider -->
+        <div class="flex items-center my-6">
+            <div class="flex-1 h-px bg-blue-200"></div>
+            <span class="px-3 text-blue-100 text-sm">
+                Secure Access
+            </span>
+            <div class="flex-1 h-px bg-blue-200"></div>
+        </div>
+
+        <!-- Links -->
+        <div class="text-center space-y-3">
+
+            <a href="/register"
+               class="block text-white hover:text-cyan-200 transition font-medium">
+                📝 Create Account
+            </a>
+
+            <a href="/forgot"
+               class="block text-red-200 hover:text-red-300 transition font-medium">
+                🔑 Forgot Password?
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

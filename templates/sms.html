@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SMS Analyzer</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        body{
+            background: linear-gradient(135deg,#e0f2fe,#f8fafc);
+        }
+
+        /* Glassmorphism */
+        .glass{
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%{
+                transform: translateY(0px);
+            }
+            50%{
+                transform: translateY(-8px);
+            }
+            100%{
+                transform: translateY(0px);
+            }
+        }
+
+        .floating{
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* 3D card */
+        .card-3d{
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card-3d:hover{
+            transform: rotateY(6deg) rotateX(4deg) scale(1.02);
+            box-shadow: 0 30px 40px rgba(0,0,0,0.25);
+        }
+
+        /* Sidebar hover */
+        .menu-item{
+            transition: 0.3s;
+        }
+
+        .menu-item:hover{
+            transform: translateX(8px);
+            color: #dbeafe;
+        }
+
+        /* Glow button */
+        .glow{
+            box-shadow: 0 0 25px rgba(249,115,22,0.5);
+        }
+
+        /* Textarea */
+        .textarea-box{
+            transition: 0.3s;
+        }
+
+        .textarea-box:focus{
+            transform: scale(1.02);
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <div class="w-64 bg-gradient-to-b from-blue-950 to-blue-700 text-white p-6 shadow-2xl">
+
+        <h2 class="text-3xl font-bold mb-10 floating">
+            🚀 UPI Analyzer
+        </h2>
+
+        <ul class="space-y-5 text-lg">
+
+            <li class="menu-item">
+                <a href="/dashboard">🏠 Dashboard</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/upi">💳 UPI Checker</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/url">🔗 URL Scanner</a>
+            </li>
+
+            <!-- Active -->
+            <li class="bg-blue-500 p-3 rounded-xl shadow-lg">
+                💬 SMS Analyzer
+            </li>
+
+            {% if user == "nandakumarreddy63@gmail.com" %}
+            <li class="menu-item">
+                <a href="/history">📜 History</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/admin">⚙️ Admin</a>
+            </li>
+            {% endif %}
+
+            <li class="pt-6 border-t border-blue-400 menu-item">
+                <a href="/logout" class="text-red-300 hover:text-red-400">
+                    🚪 Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex items-center justify-center p-8">
+
+        <!-- Card -->
+        <div class="glass card-3d p-10 rounded-3xl shadow-2xl w-[520px] text-center">
+
+            <!-- Icon -->
+            <div class="text-6xl mb-4 floating">
+                💬
+            </div>
+
+            <!-- Title -->
+            <h2 class="text-4xl font-bold text-gray-800 mb-3">
+                SMS Scam Analyzer
+            </h2>
+
+            <p class="text-gray-600 mb-8">
+                Analyze suspicious SMS messages using AI-powered scam detection
+            </p>
+
+            <!-- Textarea -->
+            <textarea 
+                id="smsInput"
+                placeholder="Paste suspicious SMS here..."
+                rows="5"
+                class="textarea-box w-full p-4 rounded-2xl border-none outline-none shadow-lg focus:ring-4 focus:ring-orange-300 mb-6"
+            ></textarea>
+
+            <!-- Button -->
+            <button 
+                onclick="checkSMS()"
+                class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-2xl font-bold text-lg shadow-xl hover:scale-105 transition duration-300 glow"
+            >
+                🚀 Analyze SMS
+            </button>
+
+            <!-- Result -->
+            <div 
+                id="result"
+                class="mt-8 text-lg font-semibold"
+            ></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function checkSMS() {
+
+    let sms = document.getElementById("smsInput").value;
+    let result = document.getElementById("result");
+
+    // Loading
+    result.innerHTML = `
+        <div class="text-orange-500 animate-pulse">
+            ⏳ Analyzing suspicious message...
+        </div>
+    `;
+
+    fetch("/check_sms", {
+        method: "POST",
+        headers: {
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+            sms: sms
+        })
+    })
+
+    .then(res => res.json())
+
+    .then(data => {
+
+        let output = "";
+
+        // Safe
+        if(data.score <= 3){
+
+            output = `
+                <div class="bg-green-100 text-green-700 p-4 rounded-2xl shadow-lg">
+                    🟢 <b>Safe Message</b>
+                </div>
+            `;
+
+        }
+
+        // Warning
+        else if(data.score <= 7){
+
+            output = `
+                <div class="bg-yellow-100 text-yellow-700 p-4 rounded-2xl shadow-lg">
+                    🟡 <b>Warning Suspicious Activity</b>
+                </div>
+            `;
+
+        }
+
+        // Dangerous
+        else{
+
+            output = `
+                <div class="bg-red-100 text-red-700 p-4 rounded-2xl shadow-lg">
+                    🔴 <b>Dangerous Scam Detected</b>
+                </div>
+            `;
+
+        }
+
+        // Reason
+        output += `
+            <div class="mt-5 bg-white/80 p-5 rounded-2xl shadow text-left">
+                <h3 class="font-bold text-gray-800 mb-2">
+                    📌 Detection Reason
+                </h3>
+
+                <p class="text-gray-700">
+                    ${data.reason}
+                </p>
+            </div>
+        `;
+
+        result.innerHTML = output;
+
+    })
+
+    .catch(() => {
+
+        result.innerHTML = `
+            <div class="bg-red-100 text-red-700 p-4 rounded-2xl shadow-lg">
+                ❌ Error occurred while analyzing SMS
+            </div>
+        `;
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>

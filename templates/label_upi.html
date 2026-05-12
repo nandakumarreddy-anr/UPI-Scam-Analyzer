@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Label UPI Data</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        body{
+            background: linear-gradient(135deg,#e0f2fe,#f8fafc);
+        }
+
+        /* Glass effect */
+        .glass{
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* 3D hover */
+        .card-3d{
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card-3d:hover{
+            transform: rotateY(5deg) rotateX(3deg) scale(1.01);
+            box-shadow: 0 25px 40px rgba(0,0,0,0.25);
+        }
+
+        /* Floating */
+        @keyframes float {
+            0%{
+                transform: translateY(0px);
+            }
+            50%{
+                transform: translateY(-6px);
+            }
+            100%{
+                transform: translateY(0px);
+            }
+        }
+
+        .floating{
+            animation: float 3s ease-in-out infinite;
+        }
+
+        tbody tr{
+            transition: 0.3s;
+        }
+
+        tbody tr:hover{
+            background: #f8fafc;
+            transform: scale(1.01);
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <div class="w-64 bg-gradient-to-b from-blue-950 to-blue-700 text-white p-6 shadow-2xl">
+
+        <h2 class="text-3xl font-bold mb-10 floating">
+            🚀 UPI Analyzer
+        </h2>
+
+        <ul class="space-y-5 text-lg">
+
+            <li>
+                <a href="/dashboard" class="hover:text-blue-200 transition">
+                    🏠 Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="/upi" class="hover:text-blue-200 transition">
+                    💳 UPI Checker
+                </a>
+            </li>
+
+            <li>
+                <a href="/url" class="hover:text-blue-200 transition">
+                    🔗 URL Scanner
+                </a>
+            </li>
+
+            <li>
+                <a href="/sms" class="hover:text-blue-200 transition">
+                    💬 SMS Analyzer
+                </a>
+            </li>
+
+            <li class="bg-blue-500 p-3 rounded-xl shadow-lg">
+                🏷️ Label UPI
+            </li>
+
+            <li>
+                <a href="/history" class="hover:text-blue-200 transition">
+                    📜 History
+                </a>
+            </li>
+
+            <li>
+                <a href="/admin" class="hover:text-blue-200 transition">
+                    ⚙️ Admin Panel
+                </a>
+            </li>
+
+            <li class="pt-6 border-t border-blue-400">
+                <a href="/logout" class="text-red-300 hover:text-red-400 transition">
+                    🚪 Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-8 overflow-auto">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+
+            <div>
+                <h1 class="text-4xl font-bold text-gray-800">
+                    🏷️ Label UPI Data
+                </h1>
+
+                <p class="text-gray-500 mt-2">
+                    Manage and label suspicious UPI IDs for model training
+                </p>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-5 py-3 rounded-2xl shadow-lg floating">
+                Total Records: {{ data|length }}
+            </div>
+
+        </div>
+
+        <!-- Table -->
+        <div class="glass rounded-3xl shadow-2xl overflow-hidden card-3d">
+
+            <div class="overflow-x-auto">
+
+                <table class="w-full border-collapse">
+
+                    <!-- Table Header -->
+                    <thead class="bg-gradient-to-r from-blue-700 to-blue-500 text-white">
+
+                        <tr>
+                            <th class="p-4 text-left">🆔 ID</th>
+                            <th class="p-4 text-left">💳 UPI ID</th>
+                            <th class="p-4 text-center">🤖 Prediction</th>
+                            <th class="p-4 text-center">🏷️ Label</th>
+                            <th class="p-4 text-center">⚡ Action</th>
+                        </tr>
+
+                    </thead>
+
+                    <!-- Table Body -->
+                    <tbody class="bg-white/90">
+
+                        {% for row in data %}
+                        <tr class="border-b">
+
+                            <!-- ID -->
+                            <td class="p-4 font-semibold text-gray-700">
+                                {{ row[0] }}
+                            </td>
+
+                            <!-- UPI -->
+                            <td class="p-4 break-all text-gray-700">
+                                {{ row[1] }}
+                            </td>
+
+                            <!-- Prediction -->
+                            <td class="p-4 text-center">
+
+                                {% if row[2] == 0 %}
+                                <span class="bg-green-100 text-green-700 px-4 py-1 rounded-full font-semibold shadow">
+                                    🟢 Safe
+                                </span>
+                                {% else %}
+                                <span class="bg-red-100 text-red-700 px-4 py-1 rounded-full font-semibold shadow">
+                                    🔴 Scam
+                                </span>
+                                {% endif %}
+
+                            </td>
+
+                            <!-- Current Label -->
+                            <td class="p-4 text-center">
+
+                                {% if row[3] == 0 %}
+                                <span class="text-green-600 font-bold">
+                                    Safe
+                                </span>
+
+                                {% elif row[3] == 1 %}
+                                <span class="text-red-600 font-bold">
+                                    Scam
+                                </span>
+
+                                {% else %}
+                                <span class="text-gray-500">
+                                    Not Labeled
+                                </span>
+                                {% endif %}
+
+                            </td>
+
+                            <!-- Action -->
+                            <td class="p-4 text-center">
+
+                                <form method="POST" class="flex justify-center gap-3">
+
+                                    <input type="hidden" name="id" value="{{ row[0] }}">
+
+                                    <select 
+                                        name="label"
+                                        class="border p-2 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    >
+                                        <option value="0">Safe</option>
+                                        <option value="1">Scam</option>
+                                    </select>
+
+                                    <button 
+                                        class="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-4 py-2 rounded-lg shadow hover:scale-105 transition"
+                                    >
+                                        Save
+                                    </button>
+
+                                </form>
+
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- Empty -->
+            {% if data|length == 0 %}
+            <div class="p-10 text-center">
+
+                <div class="text-6xl mb-4">
+                    📂
+                </div>
+
+                <h3 class="text-2xl font-bold text-gray-700 mb-2">
+                    No Data Found
+                </h3>
+
+                <p class="text-gray-500">
+                    Labeled UPI records will appear here.
+                </p>
+
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

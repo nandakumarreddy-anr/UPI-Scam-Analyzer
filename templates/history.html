@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan History</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        body{
+            background: linear-gradient(135deg,#e0f2fe,#f8fafc);
+        }
+
+        /* Glass effect */
+        .glass{
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Sidebar hover */
+        .menu-item{
+            transition: 0.3s;
+        }
+
+        .menu-item:hover{
+            transform: translateX(8px);
+            color: #dbeafe;
+        }
+
+        /* 3D card hover */
+        .card-3d{
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card-3d:hover{
+            transform: rotateY(5deg) rotateX(3deg) scale(1.01);
+            box-shadow: 0 25px 40px rgba(0,0,0,0.25);
+        }
+
+        /* Floating */
+        @keyframes float {
+            0%{
+                transform: translateY(0px);
+            }
+            50%{
+                transform: translateY(-6px);
+            }
+            100%{
+                transform: translateY(0px);
+            }
+        }
+
+        .floating{
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Table animation */
+        tbody tr{
+            transition: 0.3s;
+        }
+
+        tbody tr:hover{
+            transform: scale(1.01);
+            background: #f8fafc;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <div class="w-64 bg-gradient-to-b from-blue-950 to-blue-700 text-white p-6 shadow-2xl">
+
+        <h2 class="text-3xl font-bold mb-10 floating">
+            🚀 UPI Analyzer
+        </h2>
+
+        <ul class="space-y-5 text-lg">
+
+            <li class="menu-item">
+                <a href="/dashboard">🏠 Dashboard</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/upi">💳 UPI Checker</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/url">🔗 URL Scanner</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/sms">💬 SMS Analyzer</a>
+            </li>
+
+            <!-- Active -->
+            <li class="bg-blue-500 p-3 rounded-xl shadow-lg">
+                📜 History
+            </li>
+
+            <li class="menu-item">
+                <a href="/admin">⚙️ Admin</a>
+            </li>
+
+            <li class="pt-6 border-t border-blue-400 menu-item">
+                <a href="/logout" class="text-red-300 hover:text-red-400">
+                    🚪 Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+    <!-- Main -->
+    <div class="flex-1 p-8 overflow-auto">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+
+            <div>
+                <h2 class="text-4xl font-bold text-gray-800">
+                    📜 Scan History
+                </h2>
+
+                <p class="text-gray-500 mt-2">
+                    View all scam detection activities and analytics
+                </p>
+            </div>
+
+            <div class="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-5 py-3 rounded-2xl shadow-lg floating">
+                Total Records: {{ scans|length }}
+            </div>
+
+        </div>
+
+        <!-- History Table -->
+        <div class="glass rounded-3xl shadow-2xl overflow-hidden card-3d">
+
+            <div class="overflow-x-auto">
+
+                <table class="w-full border-collapse">
+
+                    <!-- Table Head -->
+                    <thead class="bg-gradient-to-r from-blue-700 to-blue-500 text-white">
+
+                        <tr>
+                            <th class="p-4 text-left">🔍 Type</th>
+                            <th class="p-4 text-left">📄 Input Data</th>
+                            <th class="p-4 text-center">📊 Score</th>
+                            <th class="p-4 text-center">⚠️ Result</th>
+                            <th class="p-4 text-center">🕒 Time</th>
+                        </tr>
+
+                    </thead>
+
+                    <!-- Table Body -->
+                    <tbody class="bg-white/90">
+
+                        {% for row in scans %}
+                        <tr class="border-b">
+
+                            <!-- Type -->
+                            <td class="p-4 font-semibold text-gray-700">
+                                {{ row[0] }}
+                            </td>
+
+                            <!-- Input -->
+                            <td class="p-4 break-all text-gray-600">
+                                {{ row[1] }}
+                            </td>
+
+                            <!-- Score -->
+                            <td class="p-4 text-center font-bold text-gray-700">
+                                {{ row[2] }}
+                            </td>
+
+                            <!-- Result -->
+                            <td class="p-4 text-center">
+
+                                {% if row[3] == 'Safe' %}
+                                <span class="bg-green-100 text-green-700 px-4 py-1 rounded-full font-semibold shadow">
+                                    🟢 Safe
+                                </span>
+
+                                {% elif row[3] == 'Warning' %}
+                                <span class="bg-yellow-100 text-yellow-700 px-4 py-1 rounded-full font-semibold shadow">
+                                    🟡 Warning
+                                </span>
+
+                                {% else %}
+                                <span class="bg-red-100 text-red-700 px-4 py-1 rounded-full font-semibold shadow">
+                                    🔴 Dangerous
+                                </span>
+                                {% endif %}
+
+                            </td>
+
+                            <!-- Time -->
+                            <td class="p-4 text-center text-sm text-gray-500">
+                                {{ row[4] }}
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- Empty State -->
+            {% if scans|length == 0 %}
+            <div class="p-10 text-center">
+
+                <div class="text-6xl mb-4">
+                    📂
+                </div>
+
+                <h3 class="text-2xl font-bold text-gray-700 mb-2">
+                    No History Found
+                </h3>
+
+                <p class="text-gray-500">
+                    Scan records will appear here once users start scanning.
+                </p>
+
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

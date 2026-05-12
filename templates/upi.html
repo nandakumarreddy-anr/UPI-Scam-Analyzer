@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UPI Scanner</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        body{
+            background: linear-gradient(135deg,#e0f2fe,#f8fafc);
+        }
+
+        /* Glass effect */
+        .glass{
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%{
+                transform: translateY(0px);
+            }
+            50%{
+                transform: translateY(-8px);
+            }
+            100%{
+                transform: translateY(0px);
+            }
+        }
+
+        .floating{
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* 3D Card */
+        .card-3d{
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card-3d:hover{
+            transform: rotateY(6deg) rotateX(4deg) scale(1.02);
+            box-shadow: 0 30px 40px rgba(0,0,0,0.25);
+        }
+
+        /* Sidebar hover */
+        .menu-item{
+            transition: 0.3s;
+        }
+
+        .menu-item:hover{
+            transform: translateX(8px);
+            color: #dbeafe;
+        }
+
+        /* Input animation */
+        .input-box{
+            transition: 0.3s;
+        }
+
+        .input-box:focus{
+            transform: scale(1.02);
+        }
+
+        /* Glow */
+        .glow{
+            box-shadow: 0 0 25px rgba(34,197,94,0.5);
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <div class="w-64 bg-gradient-to-b from-blue-950 to-blue-700 text-white p-6 shadow-2xl">
+
+        <h2 class="text-3xl font-bold mb-10 floating">
+            🚀 UPI Analyzer
+        </h2>
+
+        <ul class="space-y-5 text-lg">
+
+            <li class="menu-item">
+                <a href="/dashboard">🏠 Dashboard</a>
+            </li>
+
+            <!-- Active -->
+            <li class="bg-blue-500 p-3 rounded-xl shadow-lg">
+                💳 UPI Checker
+            </li>
+
+            <li class="menu-item">
+                <a href="/url">🔗 URL Scanner</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/sms">💬 SMS Analyzer</a>
+            </li>
+
+            {% if user == "nandakumarreddy63@gmail.com" %}
+            <li class="menu-item">
+                <a href="/history">📜 History</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/admin">⚙️ Admin</a>
+            </li>
+            {% endif %}
+
+            <li class="pt-6 border-t border-blue-400 menu-item">
+                <a href="/logout" class="text-red-300 hover:text-red-400">
+                    🚪 Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex items-center justify-center p-8">
+
+        <!-- Main Card -->
+        <div class="glass card-3d p-10 rounded-3xl shadow-2xl w-[520px] text-center">
+
+            <!-- Icon -->
+            <div class="text-6xl mb-4 floating">
+                💳
+            </div>
+
+            <!-- Title -->
+            <h2 class="text-4xl font-bold text-gray-800 mb-3">
+                UPI Scam Checker
+            </h2>
+
+            <p class="text-gray-600 mb-8">
+                Detect suspicious and fraudulent UPI IDs instantly
+            </p>
+
+            <!-- Input -->
+            <div class="flex gap-3 mb-6">
+
+                <input 
+                    id="upiInput"
+                    placeholder="Enter UPI ID (example@bank)"
+                    class="input-box flex-1 p-4 rounded-2xl border-none outline-none shadow-lg focus:ring-4 focus:ring-blue-300"
+                >
+
+                <button 
+                    onclick="checkUPI()"
+                    class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 rounded-2xl font-bold shadow-xl hover:scale-105 transition duration-300 glow"
+                >
+                    🚀 Check
+                </button>
+
+            </div>
+
+            <!-- Result -->
+            <div 
+                id="result"
+                class="mt-6 text-lg font-semibold"
+            ></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function checkUPI() {
+
+    let upi = document.getElementById("upiInput").value;
+    let result = document.getElementById("result");
+
+    // Loading
+    result.innerHTML = `
+        <div class="text-blue-500 animate-pulse">
+            ⏳ Checking suspicious UPI ID...
+        </div>
+    `;
+
+    fetch("/check_upi", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type":"application/json"
+        },
+
+        body: JSON.stringify({
+            upi: upi
+        })
+
+    })
+
+    .then(res => res.json())
+
+    .then(data => {
+
+        let output = "";
+
+        // Safe
+        if(data.score <= 3){
+
+            output = `
+                <div class="bg-green-100 text-green-700 p-4 rounded-2xl shadow-lg">
+                    🟢 <b>Safe UPI ID</b>
+                </div>
+            `;
+
+        }
+
+        // Warning
+        else if(data.score <= 7){
+
+            output = `
+                <div class="bg-yellow-100 text-yellow-700 p-4 rounded-2xl shadow-lg">
+                    🟡 <b>Warning Suspicious UPI</b>
+                </div>
+            `;
+
+        }
+
+        // Dangerous
+        else{
+
+            output = `
+                <div class="bg-red-100 text-red-700 p-4 rounded-2xl shadow-lg">
+                    🔴 <b>Dangerous Scam UPI Detected</b>
+                </div>
+            `;
+
+        }
+
+        // Reason
+        output += `
+            <div class="mt-5 bg-white/80 p-5 rounded-2xl shadow text-left">
+
+                <h3 class="font-bold text-gray-800 mb-2">
+                    📌 Detection Reason
+                </h3>
+
+                <p class="text-gray-700">
+                    ${data.reason}
+                </p>
+
+            </div>
+        `;
+
+        result.innerHTML = output;
+
+    })
+
+    .catch(() => {
+
+        result.innerHTML = `
+            <div class="bg-red-100 text-red-700 p-4 rounded-2xl shadow-lg">
+                ❌ Error occurred while checking UPI
+            </div>
+        `;
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>

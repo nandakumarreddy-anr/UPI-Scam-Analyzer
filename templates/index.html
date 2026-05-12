@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UPI Scam Analyzer</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        body{
+            overflow: hidden;
+            background: linear-gradient(135deg,#0f172a,#1d4ed8,#38bdf8);
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%{
+                transform: translateY(0px);
+            }
+            50%{
+                transform: translateY(-12px);
+            }
+            100%{
+                transform: translateY(0px);
+            }
+        }
+
+        .floating{
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Glow effect */
+        .glow{
+            box-shadow: 0 0 30px rgba(59,130,246,0.6);
+        }
+
+        /* Glassmorphism */
+        .glass{
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        /* 3D hover cards */
+        .card-3d{
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card-3d:hover{
+            transform: rotateY(8deg) rotateX(6deg) translateY(-8px);
+            box-shadow: 0 30px 40px rgba(0,0,0,0.3);
+        }
+
+        /* Background blur circles */
+        .circle{
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.3;
+        }
+
+    </style>
+
+</head>
+
+<body class="text-white relative">
+
+    <!-- Background Effects -->
+    <div class="circle bg-blue-400 w-96 h-96 top-0 left-0"></div>
+    <div class="circle bg-cyan-300 w-96 h-96 bottom-0 right-0"></div>
+
+    <!-- Main Container -->
+    <div class="h-screen flex flex-col justify-center items-center text-center px-6 relative z-10">
+
+        <!-- Logo -->
+        <div class="text-7xl mb-6 floating">
+            🚀
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-wide">
+            UPI Scam Analyzer
+        </h1>
+
+        <!-- Description -->
+        <p class="text-lg md:text-2xl text-blue-100 mb-10 max-w-3xl leading-relaxed">
+            Detect fraudulent UPI IDs, phishing URLs, and scam SMS messages instantly using
+            AI-powered smart analysis and real-time protection.
+        </p>
+
+        <!-- Buttons -->
+        <div class="flex gap-6 mb-16">
+
+            <!-- Login -->
+            <a href="/login"
+               class="bg-white text-blue-900 px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:scale-110 hover:bg-gray-200 transition duration-300 glow">
+                🔐 Login
+            </a>
+
+            <!-- Register -->
+            <a href="/register"
+               class="bg-gradient-to-r from-green-500 to-emerald-400 px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:scale-110 transition duration-300">
+                📝 Register
+            </a>
+
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl">
+
+            <!-- UPI -->
+            <div class="glass card-3d p-8 rounded-3xl shadow-2xl">
+
+                <div class="text-6xl mb-4 floating">
+                    💳
+                </div>
+
+                <h3 class="text-2xl font-bold mb-3">
+                    UPI Detection
+                </h3>
+
+                <p class="text-blue-100 leading-relaxed">
+                    Analyze suspicious UPI IDs and identify fake payment handles instantly.
+                </p>
+
+            </div>
+
+            <!-- URL -->
+            <div class="glass card-3d p-8 rounded-3xl shadow-2xl">
+
+                <div class="text-6xl mb-4 floating">
+                    🔗
+                </div>
+
+                <h3 class="text-2xl font-bold mb-3">
+                    URL Scanner
+                </h3>
+
+                <p class="text-blue-100 leading-relaxed">
+                    Detect phishing links, malicious websites, and dangerous redirects in real-time.
+                </p>
+
+            </div>
+
+            <!-- SMS -->
+            <div class="glass card-3d p-8 rounded-3xl shadow-2xl">
+
+                <div class="text-6xl mb-4 floating">
+                    💬
+                </div>
+
+                <h3 class="text-2xl font-bold mb-3">
+                    SMS Analyzer
+                </h3>
+
+                <p class="text-blue-100 leading-relaxed">
+                    Identify scam SMS messages using AI and advanced fraud pattern detection.
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="absolute bottom-5 text-blue-100 text-sm">
+            © 2026 UPI Scam Analyzer • Secure Digital Protection
+        </div>
+
+    </div>
+
+</body>
+</html>

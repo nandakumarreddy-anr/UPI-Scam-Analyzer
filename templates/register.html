@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        body{
+            overflow: hidden;
+            background: linear-gradient(135deg,#7c3aed,#ec4899,#3b82f6);
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0%{
+                transform: translateY(0px);
+            }
+            50%{
+                transform: translateY(-10px);
+            }
+            100%{
+                transform: translateY(0px);
+            }
+        }
+
+        .floating{
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Glass effect */
+        .glass{
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+
+        /* 3D card */
+        .card-3d{
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card-3d:hover{
+            transform: rotateY(6deg) rotateX(4deg) scale(1.02);
+            box-shadow: 0 30px 40px rgba(0,0,0,0.35);
+        }
+
+        /* Input focus */
+        .input-box{
+            transition: 0.3s;
+        }
+
+        .input-box:focus{
+            transform: scale(1.02);
+        }
+
+        /* Glow effect */
+        .glow{
+            box-shadow: 0 0 25px rgba(236,72,153,0.6);
+        }
+
+        /* Blur circles */
+        .circle{
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.3;
+        }
+
+    </style>
+
+</head>
+
+<body class="flex items-center justify-center h-screen relative text-white">
+
+    <!-- Background Effects -->
+    <div class="circle bg-pink-400 w-96 h-96 top-0 left-0"></div>
+    <div class="circle bg-blue-300 w-96 h-96 bottom-0 right-0"></div>
+
+    <!-- Register Card -->
+    <div class="glass card-3d p-10 rounded-3xl shadow-2xl w-[420px] relative z-10">
+
+        <!-- Logo -->
+        <div class="text-center mb-6">
+
+            <div class="text-6xl mb-4 floating">
+                📝
+            </div>
+
+            <h2 class="text-4xl font-bold">
+                Create Account
+            </h2>
+
+            <p class="text-pink-100 mt-2">
+                Join the secure scam detection platform
+            </p>
+
+        </div>
+
+        <!-- Form -->
+        <form method="POST" class="space-y-5">
+
+            <!-- Name -->
+            <input 
+                name="name"
+                placeholder="Enter Name"
+                required
+                class="input-box w-full p-4 rounded-xl bg-white/90 text-black border-none outline-none shadow"
+            >
+
+            <!-- Email -->
+            <input 
+                type="email"
+                name="email"
+                placeholder="Enter Email"
+                required
+                class="input-box w-full p-4 rounded-xl bg-white/90 text-black border-none outline-none shadow"
+            >
+
+            <!-- Password -->
+            <input 
+                type="password"
+                name="password"
+                placeholder="Enter Password"
+                required
+                class="input-box w-full p-4 rounded-xl bg-white/90 text-black border-none outline-none shadow"
+            >
+
+            <!-- Confirm Password -->
+            <input 
+                type="password"
+                name="confirm"
+                placeholder="Confirm Password"
+                required
+                class="input-box w-full p-4 rounded-xl bg-white/90 text-black border-none outline-none shadow"
+            >
+
+            <!-- Button -->
+            <button 
+                class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 rounded-xl font-bold text-lg shadow-xl hover:scale-105 transition duration-300 glow"
+            >
+                🚀 Send OTP
+            </button>
+
+        </form>
+
+        <!-- Divider -->
+        <div class="flex items-center my-6">
+            <div class="flex-1 h-px bg-pink-200"></div>
+            <span class="px-3 text-pink-100 text-sm">
+                Secure Registration
+            </span>
+            <div class="flex-1 h-px bg-pink-200"></div>
+        </div>
+
+        <!-- Login Link -->
+        <div class="text-center">
+
+            <a href="/login"
+               class="text-white hover:text-cyan-200 transition font-medium">
+                🔐 Already have an account?
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body{
+            background: linear-gradient(135deg,#e0f2fe,#f8fafc);
+        }
+
+        /* 3D Card Effect */
+        .card-3d{
+            transition: all 0.4s ease;
+            transform-style: preserve-3d;
+        }
+
+        .card-3d:hover{
+            transform: rotateY(8deg) rotateX(6deg) translateY(-8px) scale(1.03);
+            box-shadow: 0 25px 40px rgba(0,0,0,0.25);
+        }
+
+        /* Glass Effect */
+        .glass{
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(12px);
+        }
+
+        /* Floating Animation */
+        @keyframes float {
+            0%{
+                transform: translateY(0px);
+            }
+            50%{
+                transform: translateY(-8px);
+            }
+            100%{
+                transform: translateY(0px);
+            }
+        }
+
+        .floating{
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Sidebar Hover */
+        .menu-item{
+            transition: 0.3s;
+        }
+
+        .menu-item:hover{
+            transform: translateX(8px);
+            color: #dbeafe;
+        }
+
+        /* Glow */
+        .glow{
+            box-shadow: 0 0 20px rgba(59,130,246,0.5);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <div class="w-64 bg-gradient-to-b from-blue-950 to-blue-700 text-white p-6 shadow-2xl">
+
+        <h2 class="text-3xl font-bold mb-10 floating">
+            🚀 UPI Analyzer
+        </h2>
+
+        <ul class="space-y-5 text-lg">
+
+            <li class="bg-blue-500 p-3 rounded-xl shadow-lg glow">
+                🏠 Dashboard
+            </li>
+
+            <li class="menu-item">
+                <a href="/upi">💳 UPI Checker</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/url">🔗 URL Scanner</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/sms">💬 SMS Analyzer</a>
+            </li>
+
+            {% if user == "nandakumarreddy63@gmail.com" %}
+            <li class="menu-item">
+                <a href="/history">📜 History</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/admin">⚙️ Admin Panel</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/label_upi">🏷️ Label UPI</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/export_upi_data">📤 Export Data</a>
+            </li>
+
+            <li class="menu-item">
+                <a href="/retrain_upi">🧠 Retrain Model</a>
+            </li>
+            {% endif %}
+
+            <li class="pt-6 border-t border-blue-400 menu-item">
+                <a href="/logout" class="text-red-300 hover:text-red-400">
+                    🚪 Logout
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+
+    <!-- Main -->
+    <div class="flex-1 p-8 overflow-auto">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+
+            <div>
+                <h1 class="text-4xl font-bold text-gray-800">
+                    Dashboard
+                </h1>
+
+                <p class="text-gray-500 mt-2">
+                    Real-time scam detection analytics
+                </p>
+            </div>
+
+            {% if user == "nandakumarreddy63@gmail.com" %}
+            <span class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-5 py-2 rounded-full shadow-lg floating">
+                👑 Admin
+            </span>
+            {% endif %}
+
+        </div>
+
+        <!-- Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+
+            <!-- Total -->
+            <div class="card-3d bg-gradient-to-r from-blue-600 to-cyan-500 text-white p-6 rounded-3xl shadow-xl">
+                <div class="text-5xl mb-3">📊</div>
+                <h3 class="text-lg">Total Scans</h3>
+                <p class="text-4xl font-bold mt-2">{{ total }}</p>
+            </div>
+
+            <!-- Safe -->
+            <div class="card-3d bg-gradient-to-r from-green-500 to-emerald-400 text-white p-6 rounded-3xl shadow-xl">
+                <div class="text-5xl mb-3">🟢</div>
+                <h3 class="text-lg">Safe</h3>
+                <p class="text-4xl font-bold mt-2">{{ safe }}</p>
+            </div>
+
+            <!-- Warning -->
+            <div class="card-3d bg-gradient-to-r from-yellow-400 to-orange-400 text-white p-6 rounded-3xl shadow-xl">
+                <div class="text-5xl mb-3">🟡</div>
+                <h3 class="text-lg">Warning</h3>
+                <p class="text-4xl font-bold mt-2">{{ warning }}</p>
+            </div>
+
+            <!-- Danger -->
+            <div class="card-3d bg-gradient-to-r from-red-500 to-pink-500 text-white p-6 rounded-3xl shadow-xl">
+                <div class="text-5xl mb-3">🔴</div>
+                <h3 class="text-lg">Danger</h3>
+                <p class="text-4xl font-bold mt-2">{{ danger }}</p>
+            </div>
+
+        </div>
+
+        <!-- Chart + Activity -->
+        <div class="grid lg:grid-cols-2 gap-8">
+
+            <!-- Chart -->
+            <div class="glass p-8 rounded-3xl shadow-2xl card-3d">
+
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">
+                    📈 Scan Analytics
+                </h2>
+
+                <canvas id="chart"></canvas>
+
+            </div>
+
+            <!-- Activity -->
+            <div class="glass p-8 rounded-3xl shadow-2xl card-3d">
+
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">
+                    ⚡ System Status
+                </h2>
+
+                <div class="space-y-5">
+
+                    <div class="bg-white p-4 rounded-xl shadow flex justify-between">
+                        <span>UPI Detection</span>
+                        <span class="text-green-600 font-bold">Active</span>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow flex justify-between">
+                        <span>SMS Analyzer</span>
+                        <span class="text-green-600 font-bold">Running</span>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow flex justify-between">
+                        <span>URL Scanner</span>
+                        <span class="text-green-600 font-bold">Protected</span>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow flex justify-between">
+                        <span>Blacklist Engine</span>
+                        <span class="text-blue-600 font-bold">Updated</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const ctx = document.getElementById('chart');
+
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Safe', 'Warning', 'Danger'],
+        datasets: [{
+            data: [{{ safe }}, {{ warning }}, {{ danger }}],
+            backgroundColor: [
+                '#22c55e',
+                '#f59e0b',
+                '#ef4444'
+            ],
+            borderWidth: 3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
