@@ -3,3 +3,6 @@ gunicorn
 mysql-connector-python
 scikit-learn
 joblib
+numpy
+pandas
+bcrypt
