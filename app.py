@@ -4,22 +4,27 @@ import bcrypt
 import re
 import random
 import smtplib
+import os
 from email.mime.text import MIMEText
 import joblib
 import pandas as pd
 
 app = Flask(__name__)
-app.secret_key = "secret123"
+app.secret_key = os.getenv("SECRET_KEY", "secret123")
 
 ADMIN_EMAIL = "nandakumarreddy63@gmail.com"
 
 # ---------------- DATABASE ----------------
+
+
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="1A@nanda",
-    database="scam_analyzer"
+    host=os.getenv("DB_HOST"),
+    port=int(os.getenv("DB_PORT")),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_NAME")
 )
+
 cursor = db.cursor(buffered=True)
 
 # ---------------- LOAD MODELS ----------------
@@ -48,8 +53,8 @@ otp_storage = {}
 # ---------------- EMAIL ----------------
 def send_email(to_email, subject, body):
     try:
-        sender_email = "nandareddylinkdin@gmail.com"
-        app_password = "ahqdroilityzwfbg"   # your app password
+        sender_email = os.getenv("EMAIL_USER")
+        app_password = os.getenv("EMAIL_PASS")   # your app password
 
         msg = MIMEText(body)
         msg['Subject'] = subject
