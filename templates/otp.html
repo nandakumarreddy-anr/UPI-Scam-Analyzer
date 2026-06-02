@@ -1,42 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Set New Password</title>
+    <title>Verify OTP</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-
         body{
             overflow: hidden;
-            background: linear-gradient(135deg,#4f46e5,#7c3aed,#0ea5e9);
+            background: linear-gradient(135deg,#2563eb,#7c3aed,#0ea5e9);
         }
 
-        /* Floating animation */
         @keyframes float {
-            0%{
-                transform: translateY(0px);
-            }
-            50%{
-                transform: translateY(-10px);
-            }
-            100%{
-                transform: translateY(0px);
-            }
+            0%{transform: translateY(0px);}
+            50%{transform: translateY(-10px);}
+            100%{transform: translateY(0px);}
         }
 
         .floating{
             animation: float 3s ease-in-out infinite;
         }
 
-        /* Glass effect */
         .glass{
             background: rgba(255,255,255,0.12);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255,255,255,0.18);
         }
 
-        /* 3D card hover */
         .card-3d{
             transition: all 0.4s ease;
             transform-style: preserve-3d;
@@ -47,97 +37,76 @@
             box-shadow: 0 30px 40px rgba(0,0,0,0.35);
         }
 
-        /* Input focus */
-        .input-box{
+        .otp-box{
             transition: 0.3s;
         }
 
-        .input-box:focus{
-            transform: scale(1.02);
+        .otp-box:focus{
+            transform: scale(1.03);
         }
 
-        /* Glow button */
         .glow{
             box-shadow: 0 0 25px rgba(139,92,246,0.6);
         }
 
-        /* Background circles */
         .circle{
             position: absolute;
             border-radius: 50%;
             filter: blur(90px);
             opacity: 0.3;
         }
-
     </style>
 
 </head>
 
 <body class="h-screen flex items-center justify-center relative text-white">
 
-    <!-- Background Effects -->
-    <div class="circle bg-pink-400 w-96 h-96 top-0 left-0"></div>
-    <div class="circle bg-cyan-300 w-96 h-96 bottom-0 right-0"></div>
+    <div class="circle bg-blue-400 w-96 h-96 top-0 left-0"></div>
+    <div class="circle bg-purple-400 w-96 h-96 bottom-0 right-0"></div>
 
-    <!-- Main Card -->
     <div class="glass card-3d p-10 rounded-3xl shadow-2xl w-[420px] text-center relative z-10">
 
-        <!-- Icon -->
         <div class="text-6xl mb-4 floating">
-            🔑
+            🔐
         </div>
 
-        <!-- Title -->
         <h2 class="text-4xl font-bold mb-3">
-            Set New Password
+            Verify OTP
         </h2>
 
         <p class="text-purple-100 mb-8">
-            Create a strong password to secure your account
+            Enter the OTP sent to your email
         </p>
 
-        <!-- Form -->
-        <form method="POST" action="/update_password" class="space-y-5">
+        <form method="POST" action="/verify_otp" class="space-y-5">
 
             <input type="hidden" name="email" value="{{email}}">
 
-            <!-- New Password -->
-            <input 
-                type="password"
-                name="password"
-                placeholder="New Password"
+            <input
+                name="otp"
+                type="text"
+                placeholder="Enter OTP"
                 required
-                class="input-box w-full p-4 rounded-xl bg-white/90 text-black border-none outline-none shadow"
+                maxlength="6"
+                class="otp-box w-full p-4 rounded-xl bg-white/90 text-black text-center tracking-[10px] text-2xl font-bold border-none outline-none shadow"
             >
 
-            <!-- Confirm Password -->
-            <input 
-                type="password"
-                name="confirm"
-                placeholder="Confirm Password"
-                required
-                class="input-box w-full p-4 rounded-xl bg-white/90 text-black border-none outline-none shadow"
+            <button
+                class="w-full bg-gradient-to-r from-purple-600 to-blue-500 text-white py-3 rounded-xl font-bold text-lg shadow-xl hover:scale-105 transition duration-300 glow"
             >
-
-            <!-- Button -->
-            <button 
-                class="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white py-3 rounded-xl font-bold text-lg shadow-xl hover:scale-105 transition duration-300 glow"
-            >
-                🚀 Update Password
+                🚀 Verify OTP
             </button>
 
         </form>
 
-        <!-- Divider -->
         <div class="flex items-center my-6">
             <div class="flex-1 h-px bg-purple-200"></div>
             <span class="px-3 text-purple-100 text-sm">
-                Secure Password Reset
+                Secure Verification
             </span>
             <div class="flex-1 h-px bg-purple-200"></div>
         </div>
 
-        <!-- Back -->
         <div>
             <a href="/login"
                class="text-white hover:text-cyan-200 transition font-medium">
