@@ -52,28 +52,40 @@ otp_storage = {}
 
 # ---------------- EMAIL ----------------
 def send_email(to_email, subject, body):
+    sender_email = os.getenv("EMAIL_USER")
+    app_password = os.getenv("EMAIL_PASS")
+
+    print("EMAIL_USER =", sender_email)
+    print("EMAIL_PASS exists =", bool(app_password))
+
     try:
-        sender_email = os.getenv("EMAIL_USER")
-        app_password = os.getenv("EMAIL_PASS")
-
-        print("EMAIL_USER =", sender_email)
-        print("EMAIL_PASS exists =", bool(app_password))
-
         msg = MIMEText(body)
         msg['Subject'] = subject
         msg['From'] = sender_email
         msg['To'] = to_email
 
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(sender_email, app_password)
-        server.sendmail(sender_email, to_email, msg.as_string())
-        server.quit()
+        print("Connecting SMTP...")
 
-        print("✅ Email sent")
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
+            server.starttls()
+
+            print("Logging in...")
+
+            server.login(sender_email, app_password)
+
+            print("Sending mail...")
+
+            server.sendmail(
+                sender_email,
+                to_email,
+                msg.as_string()
+            )
+
+        print("✅ Email sent successfully")
 
     except Exception as e:
-        print("❌ Email error:", e)
+        print("❌ Email error:", repr(e))
+        raise
 # ---------------- HELPER ----------------
 def get_result(score):
     if score <= 3:
