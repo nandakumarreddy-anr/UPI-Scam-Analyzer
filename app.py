@@ -115,7 +115,10 @@ def register():
         otp = str(random.randint(100000, 999999))
         otp_storage[email] = (otp, name, password)
 
-        send_email(email, "Registration OTP", f"Your OTP is {otp}")
+        try:
+            send_email(email, "Registration OTP", f"Your OTP is {otp}")
+        except Exception as e:
+            return f"EMAIL ERROR: {e}"
         return render_template("otp.html", email=email)
 
     return render_template("register.html")
