@@ -114,12 +114,33 @@ def register():
         if password != confirm:
             return "Passwords do not match ❌"
 
+        # Check if email already exists
+        cursor.execute(
+            "SELECT * FROM users WHERE email=%s",
+            (email,)
+        )
+
+        existing = cursor.fetchone()
+
+        if existing:
+            return "Email already registered ❌"
+
         otp = str(random.randint(100000, 999999))
-        otp_storage[email] = (otp, name, password)
+
+        otp_storage[email] = (
+            otp,
+            name,
+            password
+        )
 
         print(f"OTP for {email}: {otp}")
 
-        return render_template("otp.html", email=email)
+        return render_template(
+            "otp.html",
+            email=email
+        )
+
+    return render_template("register.html")
 
 # ---------------- VERIFY OTP ----------------
 @app.route('/verify_otp', methods=['POST'])
@@ -181,7 +202,7 @@ def forgot():
         otp = str(random.randint(100000,999999))
         otp_storage[email] = otp
 
-        send_email(email, "Reset OTP", f"Your OTP is {otp}")
+        print(f"RESET OTP for {email}: {otp}")
 
         return render_template("reset_otp.html", email=email)
 
