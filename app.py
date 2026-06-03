@@ -1,3 +1,5 @@
+import email
+
 from flask import Flask, render_template, request, redirect, jsonify, session
 import mysql.connector
 import bcrypt
@@ -115,13 +117,9 @@ def register():
         otp = str(random.randint(100000, 999999))
         otp_storage[email] = (otp, name, password)
 
-        try:
-            send_email(email, "Registration OTP", f"Your OTP is {otp}")
-        except Exception as e:
-            return f"EMAIL ERROR: {e}"
-        return render_template("otp.html", email=email)
+        print(f"OTP for {email}: {otp}")
 
-    return render_template("register.html")
+        return render_template("otp.html", email=email)
 
 # ---------------- VERIFY OTP ----------------
 @app.route('/verify_otp', methods=['POST'])
