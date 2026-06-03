@@ -18,14 +18,21 @@ ADMIN_EMAIL = "nandakumarreddy63@gmail.com"
 
 # ---------------- DATABASE ----------------
 
+import mysql.connector
+import os
+
 try:
+    print("DB_HOST =", os.getenv("DB_HOST"))
+    print("DB_PORT =", os.getenv("DB_PORT"))
+    print("DB_USER =", os.getenv("DB_USER"))
+    print("DB_NAME =", os.getenv("DB_NAME"))
+
     db = mysql.connector.connect(
-        host=os.getenv("DB_HOST", "mysql-2da001ee-scam-analyzer-db.l.aivencloud.com"),
+        host=os.getenv("DB_HOST"),
         port=int(os.getenv("DB_PORT", "11510")),
-        user=os.getenv("DB_USER", "avnadmin"),
+        user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME", "defaultdb"),
-        ssl_disabled=False
+        database=os.getenv("DB_NAME")
     )
 
     cursor = db.cursor(buffered=True)
@@ -33,7 +40,7 @@ try:
     print("✅ Database Connected Successfully")
 
 except Exception as e:
-    print("❌ Database Connection Error:", e)
+    print("❌ Database Connection Error:", str(e))
 
     db = None
     cursor = None
@@ -113,6 +120,10 @@ def home():
 # ---------------- REGISTER ----------------
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+
+    if cursor is None:
+        return "Database connection failed ❌"
+
     if request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
@@ -122,7 +133,6 @@ def register():
         if password != confirm:
             return "Passwords do not match ❌"
 
-        # Check if email already exists
         cursor.execute(
             "SELECT * FROM users WHERE email=%s",
             (email,)
@@ -135,18 +145,11 @@ def register():
 
         otp = str(random.randint(100000, 999999))
 
-        otp_storage[email] = (
-            otp,
-            name,
-            password
-        )
+        otp_storage[email] = (otp, name, password)
 
         print(f"OTP for {email}: {otp}")
 
-        return render_template(
-            "otp.html",
-            email=email
-        )
+        return render_template("otp.html", email=email)
 
     return render_template("register.html")
 
@@ -174,18 +177,27 @@ def verify_otp():
     return "Invalid OTP ❌"
 
 # ---------------- LOGIN ----------------
-@app.route('/login', methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+
+    if cursor is None:
+        return "Database connection failed ❌"
+
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
 
-        cursor.execute("SELECT * FROM users WHERE email=%s",(email,))
+        cursor.execute(
+            "SELECT * FROM users WHERE email=%s",
+            (email,)
+        )
+
         user = cursor.fetchone()
 
         if user:
             stored = user[3]
-            if isinstance(stored,str):
+
+            if isinstance(stored, str):
                 stored = stored.encode()
 
             if bcrypt.checkpw(password.encode(), stored):
@@ -195,7 +207,6 @@ def login():
         return "Invalid login ❌"
 
     return render_template("login.html")
-
 # ---------------- LOGOUT ----------------
 @app.route('/logout')
 def logout():
