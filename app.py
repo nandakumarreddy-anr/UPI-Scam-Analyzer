@@ -19,19 +19,27 @@ ADMIN_EMAIL = "nandakumarreddy63@gmail.com"
 # ---------------- DATABASE ----------------
 
 try:
+    print("DB_HOST =", os.getenv("DB_HOST"))
+    print("DB_PORT =", os.getenv("DB_PORT"))
+    print("DB_USER =", os.getenv("DB_USER"))
+    print("DB_NAME =", os.getenv("DB_NAME"))
+
     db = mysql.connector.connect(
         host=os.getenv("DB_HOST"),
         port=int(os.getenv("DB_PORT")),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME")
+        database=os.getenv("DB_NAME"),
+        ssl_disabled=False
     )
+
     cursor = db.cursor(buffered=True)
 
+    print("✅ Database Connected Successfully")
+
 except Exception as e:
-    print("DATABASE ERROR:", e)
-    db = None
-    cursor = None
+    print("❌ Database Error:", e)
+    raise
 # ---------------- LOAD MODELS ----------------
 try:
     sms_model = joblib.load("sms_model.pkl")
