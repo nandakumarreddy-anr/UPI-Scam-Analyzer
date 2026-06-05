@@ -368,33 +368,12 @@ def check_upi():
 # ---------------- URL CHECK ----------------
 @app.route('/check_url', methods=['POST'])
 def check_url():
+
     url = request.json['url'].lower()
+
     score = 0
     reasons = []
 
-    # 🔴 BLACKLIST
-    cursor.execute(
-        "SELECT * FROM blacklist WHERE LOWER(data)=%s AND type='URL'",
-        (url,)
-    )
-    blacklist_item = cursor.fetchone()
-
-    if blacklist_item:
-        result = "Dangerous"
-
-        cursor.execute(
-            "INSERT INTO scans (user_id, type, input_data, score, result) VALUES (%s,%s,%s,%s,%s)",
-            (1, "URL", url, 10, result)
-        )
-        db.commit()
-
-        return jsonify({
-            "score": 10,
-            "result": result,
-            "reason": "Blacklisted by admin"
-        })
-
-    # 🔍 RULES
     if any(x in url for x in ["login","verify","bank","secure","offer","win"]):
         score += 3
         reasons.append("Suspicious keywords")
@@ -434,13 +413,6 @@ def check_url():
 
     result = get_result(score)
 
-    # 💾 SAVE
-    cursor.execute(
-        "INSERT INTO scans (user_id, type, input_data, score, result) VALUES (%s,%s,%s,%s,%s)",
-        (1, "URL", url, score, result)
-    )
-    db.commit()
-
     return jsonify({
         "score": score,
         "result": result,
@@ -449,33 +421,12 @@ def check_url():
 # ---------------- SMS CHECK ----------------
 @app.route('/check_sms', methods=['POST'])
 def check_sms():
+
     sms = request.json['sms'].lower()
+
     score = 0
     reasons = []
 
-    # 🔴 BLACKLIST
-    cursor.execute(
-        "SELECT * FROM blacklist WHERE LOWER(data)=%s AND type='SMS'",
-        (sms,)
-    )
-    blacklist_item = cursor.fetchone()
-
-    if blacklist_item:
-        result = "Dangerous"
-
-        cursor.execute(
-            "INSERT INTO scans (user_id, type, input_data, score, result) VALUES (%s,%s,%s,%s,%s)",
-            (1, "SMS", sms, 10, result)
-        )
-        db.commit()
-
-        return jsonify({
-            "score": 10,
-            "result": result,
-            "reason": "Blacklisted by admin"
-        })
-
-    # 🔍 RULES
     if re.search(r'\d{4,}', sms):
         reasons.append("Contains large numbers")
 
@@ -496,20 +447,18 @@ def check_sms():
         reasons.append("Contains link")
 
     if sms_model and sms_vectorizer:
-        vec = sms_vectorizer.transform([sms])
-        pred = sms_model.predict(vec)[0]
-        if pred == 1:
-            score += 3
-            reasons.append("ML model flagged")
+        try:
+            vec = sms_vectorizer.transform([sms])
+            pred = sms_model.predict(vec)[0]
+
+            if pred == 1:
+                score += 3
+                reasons.append("ML model flagged")
+
+        except:
+            pass
 
     result = get_result(score)
-
-    # 💾 SAVE
-    cursor.execute(
-        "INSERT INTO scans (user_id, type, input_data, score, result) VALUES (%s,%s,%s,%s,%s)",
-        (1, "SMS", sms, score, result)
-    )
-    db.commit()
 
     return jsonify({
         "score": score,
