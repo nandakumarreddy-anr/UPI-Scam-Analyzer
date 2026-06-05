@@ -115,7 +115,7 @@ def get_result(score):
 # ---------------- HOME ----------------
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return redirect('/dashboard')
 
 # ---------------- REGISTER ----------------
 @app.route('/register', methods=['GET', 'POST'])
@@ -261,9 +261,7 @@ def update_password():
 # ---------------- DASHBOARD ----------------
 @app.route('/dashboard')
 def dashboard():
-    if 'user' not in session:
-        return redirect('/login')
-    return render_template("dashboard.html", user=session['user'])
+    return render_template("dashboard.html", user="Demo User")
 
 # ---------------- ADMIN ----------------
 @app.route('/admin', methods=['GET','POST'])
@@ -319,75 +317,48 @@ def history():
 # ---------------- PAGES ----------------
 @app.route('/upi')
 def upi():
-    if 'user' not in session:
-        return redirect('/login')
-    return render_template("upi.html", user=session['user'])
+    return render_template("upi.html", user="Demo User")
 
 @app.route('/url')
 def url_page():
-    if 'user' not in session:
-        return redirect('/login')
-    return render_template("url.html", user=session['user'])
+    return render_template("url.html", user="Demo User")
 
 @app.route('/sms')
 def sms():
-    if 'user' not in session:
-        return redirect('/login')
-    return render_template("sms.html", user=session['user'])
+    return render_template("sms.html", user="Demo User")
 
 # ---------------- UPI CHECK ----------------
 @app.route('/check_upi', methods=['POST'])
 def check_upi():
+
     upi = request.json['upi'].lower()
+
     score = 0
     reasons = []
 
-    # 🔴 BLACKLIST CHECK
-    cursor.execute(
-        "SELECT * FROM blacklist WHERE LOWER(data)=%s AND type='UPI'",
-        (upi,)
-    )
-    blacklist_item = cursor.fetchone()
-
-    if blacklist_item:
-        result = "Dangerous"
-
-        cursor.execute(
-            "INSERT INTO scans (user_id, type, input_data, score, result) VALUES (%s,%s,%s,%s,%s)",
-            (1, "UPI", upi, 10, result)
-        )
-        db.commit()
-
-        return jsonify({
-            "score": 10,
-            "result": result,
-            "reason": "Blacklisted by admin"
-        })
-
     # 🔍 RULES
+
     if not re.match(r'^[\w.-]+@[\w.-]+$', upi):
         score += 5
         reasons.append("Invalid UPI format")
 
-    if any(x in upi for x in ["win","free","cash","offer","bonus"]):
+    if any(x in upi for x in ["win", "free", "cash", "offer", "bonus"]):
         score += 5
         reasons.append("Contains scam keywords")
 
     if upi_model and upi_vectorizer:
-        vec = upi_vectorizer.transform([upi])
-        pred = upi_model.predict(vec)[0]
-        if pred == 1:
-            score += 3
-            reasons.append("ML model flagged")
+        try:
+            vec = upi_vectorizer.transform([upi])
+            pred = upi_model.predict(vec)[0]
+
+            if pred == 1:
+                score += 3
+                reasons.append("ML model flagged")
+
+        except Exception as e:
+            print("UPI Model Error:", e)
 
     result = get_result(score)
-
-    # 💾 SAVE
-    cursor.execute(
-        "INSERT INTO scans (user_id, type, input_data, score, result) VALUES (%s,%s,%s,%s,%s)",
-        (1, "UPI", upi, score, result)
-    )
-    db.commit()
 
     return jsonify({
         "score": score,
