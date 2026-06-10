@@ -98,42 +98,6 @@ except:
 otp_storage = {}
 reset_otp_storage = {}
 
-# ---------------- EMAIL ----------------
-def send_email(to_email, subject, body):
-    sender_email = os.getenv("EMAIL_USER")
-    app_password = os.getenv("EMAIL_PASS")
-
-    print("EMAIL_USER =", sender_email)
-    print("EMAIL_PASS exists =", bool(app_password))
-
-    try:
-        msg = MIMEText(body)
-        msg['Subject'] = subject
-        msg['From'] = sender_email
-        msg['To'] = to_email
-
-        print("Connecting SMTP...")
-
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
-            server.starttls()
-
-            print("Logging in...")
-
-            server.login(sender_email, app_password)
-
-            print("Sending mail...")
-
-            server.sendmail(
-                sender_email,
-                to_email,
-                msg.as_string()
-            )
-
-        print("✅ Email sent successfully")
-
-    except Exception as e:
-        print("❌ Email error:", repr(e))
-        raise
 # ---------------- HELPER ----------------
 def get_result(score):
     if score <= 3:
@@ -184,6 +148,8 @@ def register():
             "UPI Scam Analyzer - Registration OTP",
             f"Your OTP for registration is: {otp}"
         )
+        if not sent:
+            print(f"REGISTRATION OTP for {email}: {otp}")
 
         return render_template(
             "otp.html",
@@ -292,6 +258,32 @@ def verify_otp():
             return redirect('/login')
 
     return "Invalid OTP ❌"
+#-----------------send_email-----------------
+def send_email(to_email, subject, body):
+    try:
+        sender_email = os.getenv("EMAIL_USER")
+        app_password = os.getenv("EMAIL_PASS")
+
+        msg = MIMEText(body)
+        msg['Subject'] = subject
+        msg['From'] = sender_email
+        msg['To'] = to_email
+
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
+            server.starttls()
+            server.login(sender_email, app_password)
+            server.sendmail(
+                sender_email,
+                to_email,
+                msg.as_string()
+            )
+
+        print("✅ Email sent successfully")
+        return True
+
+    except Exception as e:
+        print("❌ Email error:", e)
+        return False
 # ---------------- FORGOT PASSWORD ----------------
 @app.route('/forgot', methods=['GET', 'POST'])
 def forgot():
@@ -317,11 +309,16 @@ def forgot():
 
         reset_otp_storage[email] = otp
 
-        send_email(
+        # Send OTP Email
+        sent = send_email(
             email,
             "UPI Scam Analyzer - Password Reset OTP",
             f"Your password reset OTP is: {otp}"
         )
+
+        # Fallback if email failssend_email()
+        if not sent:
+            print(f"RESET OTP for {email}: {otp}")
 
         return render_template(
             "reset_otp.html",
@@ -458,21 +455,35 @@ def sms():
 @app.route('/check_upi', methods=['POST'])
 def check_upi():
 
+    if cursor is None:
+        return jsonify({
+            "score": 0,
+            "result": "Error",
+            "reason": "Database connection failed"
+        })
+
     upi = request.json['upi'].lower()
 
     score = 0
     reasons = []
 
-    # 🔍 RULES
-
+    # UPI Format Check
     if not re.match(r'^[\w.-]+@[\w.-]+$', upi):
         score += 5
         reasons.append("Invalid UPI format")
 
-    if any(x in upi for x in ["win", "free", "cash", "offer", "bonus"]):
+    # Scam Keywords
+    if any(x in upi for x in [
+        "win",
+        "free",
+        "cash",
+        "offer",
+        "bonus"
+    ]):
         score += 5
         reasons.append("Contains scam keywords")
 
+    # ML Model Check
     if upi_model and upi_vectorizer:
         try:
             vec = upi_vectorizer.transform([upi])
@@ -486,6 +497,28 @@ def check_upi():
             print("UPI Model Error:", e)
 
     result = get_result(score)
+
+    # Save Scan History
+    try:
+        cursor.execute(
+            """
+            INSERT INTO scans
+            (user_id, type, input_data, score, result)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                1,
+                "UPI",
+                upi,
+                score,
+                result
+            )
+        )
+
+        db.commit()
+
+    except Exception as e:
+        print("Scan Save Error:", e)
 
     return jsonify({
         "score": score,
