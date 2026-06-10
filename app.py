@@ -68,6 +68,9 @@ try:
     db.commit()
 
     print("✅ Tables Created Successfully")
+    cursor.execute("DELETE FROM users")
+    db.commit()
+    print("✅ All users deleted")
 
 except Exception as e:
     print("❌ PostgreSQL Connection Error:", str(e))
@@ -231,14 +234,13 @@ def login():
         stored = user[3]
 
         try:
-            # PostgreSQL returns memoryview sometimes
+
+            # PostgreSQL handling
             if isinstance(stored, memoryview):
-                stored = stored.tobytes()
+                stored = stored.tobytes().decode('utf-8')
 
             if isinstance(stored, str):
                 stored = stored.encode('utf-8')
-
-            print("Stored Password:", stored)
 
             if bcrypt.checkpw(
                 password.encode('utf-8'),
@@ -250,8 +252,8 @@ def login():
             return "Invalid Password ❌"
 
         except Exception as e:
-            print("Stored Password =", stored)
-            print("Stored Password =", stored)
+            print("Login Error:", e)
+            print("Stored Password:", stored)
             return "Password format error ❌"
 
     return render_template("login.html")
@@ -294,8 +296,11 @@ def update_password():
     if password != confirm:
         return "Passwords do not match ❌"
 
-    hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-
+    hashed = bcrypt.hashpw(
+        password.encode('utf-8'),
+        bcrypt.gensalt()
+        ).decode('utf-8')
+        
     cursor.execute(
         "UPDATE users SET password=%s WHERE email=%s",
         (hashed, email)
