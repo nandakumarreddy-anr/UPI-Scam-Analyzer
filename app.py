@@ -214,6 +214,7 @@ def login():
         return "Database connection failed ❌"
 
     if request.method == 'POST':
+
         email = request.form['email']
         password = request.form['password']
 
@@ -224,17 +225,33 @@ def login():
 
         user = cursor.fetchone()
 
-        if user:
-            stored = user[3]
+        if not user:
+            return "User not found ❌"
+
+        stored = user[3]
+
+        try:
+            # PostgreSQL returns memoryview sometimes
+            if isinstance(stored, memoryview):
+                stored = stored.tobytes()
 
             if isinstance(stored, str):
-                stored = stored.encode()
+                stored = stored.encode('utf-8')
 
-            if bcrypt.checkpw(password.encode(), stored):
+            print("Stored Password:", stored)
+
+            if bcrypt.checkpw(
+                password.encode('utf-8'),
+                stored
+            ):
                 session['user'] = email
                 return redirect('/dashboard')
 
-        return "Invalid login ❌"
+            return "Invalid Password ❌"
+
+        except Exception as e:
+            print("Login Error:", str(e))
+            return "Password format error ❌"
 
     return render_template("login.html")
 # ---------------- LOGOUT ----------------
