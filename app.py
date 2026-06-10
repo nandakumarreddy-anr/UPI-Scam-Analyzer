@@ -68,9 +68,6 @@ try:
     db.commit()
 
     print("✅ Tables Created Successfully")
-    cursor.execute("DELETE FROM users")
-    db.commit()
-    print("✅ All users deleted")
 
 except Exception as e:
     print("❌ PostgreSQL Connection Error:", str(e))
@@ -189,22 +186,34 @@ def register():
 # ---------------- VERIFY OTP ----------------
 @app.route('/verify_otp', methods=['POST'])
 def verify_otp():
+
+    if cursor is None:
+        return "Database connection failed ❌"
+
     email = request.form['email']
     user_otp = request.form['otp']
 
     if email in otp_storage:
+
         otp, name, password = otp_storage[email]
 
         if user_otp == otp:
-            hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+            # Hash password correctly for PostgreSQL
+            hashed = bcrypt.hashpw(
+                password.encode('utf-8'),
+                bcrypt.gensalt()
+            ).decode('utf-8')
 
             cursor.execute(
-                "INSERT INTO users (name,email,password) VALUES (%s,%s,%s)",
+                "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)",
                 (name, email, hashed)
             )
+
             db.commit()
 
             otp_storage.pop(email)
+
             return redirect('/login')
 
     return "Invalid OTP ❌"
