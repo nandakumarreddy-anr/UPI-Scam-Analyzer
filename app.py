@@ -33,6 +33,39 @@ try:
     cursor = db.cursor()
 
     print("✅ PostgreSQL Connected Successfully")
+    cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
+    password TEXT
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS blacklist (
+    id SERIAL PRIMARY KEY,
+    data TEXT,
+    type VARCHAR(50),
+    reason TEXT
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS scans (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    type VARCHAR(50),
+    input_data TEXT,
+    score INTEGER,
+    result VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
+db.commit()
+
+print("✅ Tables Created")
 
 except Exception as e:
     print("❌ PostgreSQL Connection Error:", str(e))
