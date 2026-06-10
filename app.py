@@ -5,6 +5,7 @@ import psycopg2
 import bcrypt
 import re
 import random
+import resend
 import smtplib
 import os
 from email.mime.text import MIMEText
@@ -261,28 +262,21 @@ def verify_otp():
 #-----------------send_email-----------------
 def send_email(to_email, subject, body):
     try:
-        sender_email = os.getenv("EMAIL_USER")
-        app_password = os.getenv("EMAIL_PASS")
 
-        msg = MIMEText(body)
-        msg['Subject'] = subject
-        msg['From'] = sender_email
-        msg['To'] = to_email
+        resend.api_key = os.getenv("RESEND_API_KEY")
 
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
-            server.starttls()
-            server.login(sender_email, app_password)
-            server.sendmail(
-                sender_email,
-                to_email,
-                msg.as_string()
-            )
+        resend.Emails.send({
+            "from": "onboarding@resend.dev",
+            "to": [to_email],
+            "subject": subject,
+            "text": body
+        })
 
-        print("✅ Email sent successfully")
+        print("✅ Email Sent")
         return True
 
     except Exception as e:
-        print("❌ Email error:", e)
+        print("❌ Email Error:", e)
         return False
 # ---------------- FORGOT PASSWORD ----------------
 @app.route('/forgot', methods=['GET', 'POST'])
