@@ -529,12 +529,26 @@ def check_upi():
 @app.route('/check_url', methods=['POST'])
 def check_url():
 
+    if cursor is None:
+        return jsonify({
+            "score": 0,
+            "result": "Error",
+            "reason": "Database connection failed"
+        })
+
     url = request.json['url'].lower()
 
     score = 0
     reasons = []
 
-    if any(x in url for x in ["login","verify","bank","secure","offer","win"]):
+    if any(x in url for [
+        "login",
+        "verify",
+        "bank",
+        "secure",
+        "offer",
+        "win"
+    ]):
         score += 3
         reasons.append("Suspicious keywords")
 
@@ -565,13 +579,37 @@ def check_url():
     if url_model:
         try:
             pred = url_model.predict([url])[0]
+
             if pred == 1:
                 score += 3
                 reasons.append("ML model flagged")
-        except:
-            pass
+
+        except Exception as e:
+            print("URL Model Error:", e)
 
     result = get_result(score)
+
+    # Save Scan History
+    try:
+        cursor.execute(
+            """
+            INSERT INTO scans
+            (user_id, type, input_data, score, result)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                1,
+                "URL",
+                url,
+                score,
+                result
+            )
+        )
+
+        db.commit()
+
+    except Exception as e:
+        print("Scan Save Error:", e)
 
     return jsonify({
         "score": score,
