@@ -66,8 +66,11 @@ try:
     """)
 
     db.commit()
-
+    
     print("✅ Tables Created Successfully")
+    cursor.execute("DELETE FROM users")
+    db.commit()
+    print("✅ USERS TABLE CLEARED")
 
 except Exception as e:
     print("❌ PostgreSQL Connection Error:", str(e))
@@ -200,6 +203,7 @@ def verify_otp():
         if user_otp == otp:
 
             # Hash password correctly for PostgreSQL
+            print("HASH =", hashed)
             hashed = bcrypt.hashpw(
                 password.encode('utf-8'),
                 bcrypt.gensalt()
