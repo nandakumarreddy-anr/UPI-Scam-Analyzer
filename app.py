@@ -156,6 +156,7 @@ def register():
         return "Database connection failed ❌"
 
     if request.method == 'POST':
+
         name = request.form['name']
         email = request.form['email']
         password = request.form['password']
@@ -178,9 +179,16 @@ def register():
 
         otp_storage[email] = (otp, name, password)
 
-        print(f"OTP for {email}: {otp}")
+        send_email(
+            email,
+            "UPI Scam Analyzer - Registration OTP",
+            f"Your OTP for registration is: {otp}"
+        )
 
-        return render_template("otp.html", email=email)
+        return render_template(
+            "otp.html",
+            email=email
+        )
 
     return render_template("register.html")
 
@@ -309,7 +317,11 @@ def forgot():
 
         reset_otp_storage[email] = otp
 
-        print(f"RESET OTP for {email}: {otp}")
+        send_email(
+            email,
+            "UPI Scam Analyzer - Password Reset OTP",
+            f"Your password reset OTP is: {otp}"
+        )
 
         return render_template(
             "reset_otp.html",
