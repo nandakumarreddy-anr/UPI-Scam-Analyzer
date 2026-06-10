@@ -143,7 +143,7 @@ def register():
 
         otp_storage[email] = (otp, name, password)
 
-        send_email(
+        sent = send_email(
             email,
             "UPI Scam Analyzer - Registration OTP",
             f"Your OTP for registration is: {otp}"
@@ -541,14 +541,14 @@ def check_url():
     score = 0
     reasons = []
 
-    if any(x in url for [
-        "login",
-        "verify",
-        "bank",
-        "secure",
-        "offer",
-        "win"
-    ]):
+    if any(x in url for x in [
+    "login",
+    "verify",
+    "bank",
+    "secure",
+    "offer",
+    "win"
+]):
         score += 3
         reasons.append("Suspicious keywords")
 
