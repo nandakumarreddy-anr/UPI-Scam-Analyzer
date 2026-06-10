@@ -190,9 +190,6 @@ def register():
 @app.route('/verify_otp', methods=['POST'])
 def verify_otp():
 
-    if cursor is None:
-        return "Database connection failed ❌"
-
     email = request.form['email']
     user_otp = request.form['otp']
 
@@ -202,12 +199,12 @@ def verify_otp():
 
         if user_otp == otp:
 
-            # Hash password correctly for PostgreSQL
-            print("HASH =", hashed)
             hashed = bcrypt.hashpw(
                 password.encode('utf-8'),
                 bcrypt.gensalt()
             ).decode('utf-8')
+
+            print("HASH =", hashed)
 
             cursor.execute(
                 "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)",
@@ -221,7 +218,6 @@ def verify_otp():
             return redirect('/login')
 
     return "Invalid OTP ❌"
-
 # ---------------- LOGIN ----------------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
