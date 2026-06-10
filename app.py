@@ -145,7 +145,7 @@ def get_result(score):
 # ---------------- HOME ----------------
 @app.route('/')
 def home():
-    return redirect('/dashboard')
+    return redirect('/login')
 
 # ---------------- REGISTER ----------------
 @app.route('/register', methods=['GET', 'POST'])
@@ -291,8 +291,14 @@ def update_password():
 # ---------------- DASHBOARD ----------------
 @app.route('/dashboard')
 def dashboard():
-    return render_template("dashboard.html", user="Demo User")
 
+    if 'user' not in session:
+        return redirect('/login')
+
+    return render_template(
+        "dashboard.html",
+        user=session['user']
+    )
 # ---------------- ADMIN ----------------
 @app.route('/admin', methods=['GET','POST'])
 def admin():
@@ -347,15 +353,36 @@ def history():
 # ---------------- PAGES ----------------
 @app.route('/upi')
 def upi():
-    return render_template("upi.html", user="Demo User")
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    return render_template(
+        "upi.html",
+        user=session['user']
+    )
 
 @app.route('/url')
 def url_page():
-    return render_template("url.html", user="Demo User")
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    return render_template(
+        "url.html",
+        user=session['user']
+    )
 
 @app.route('/sms')
 def sms():
-    return render_template("sms.html", user="Demo User")
+
+    if 'user' not in session:
+        return redirect('/login')
+
+    return render_template(
+        "sms.html",
+        user=session['user']
+    )
 
 # ---------------- UPI CHECK ----------------
 @app.route('/check_upi', methods=['POST'])
