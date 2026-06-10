@@ -620,6 +620,13 @@ def check_url():
 @app.route('/check_sms', methods=['POST'])
 def check_sms():
 
+    if cursor is None:
+        return jsonify({
+            "score": 0,
+            "result": "Error",
+            "reason": "Database connection failed"
+        })
+
     sms = request.json['sms'].lower()
 
     score = 0
@@ -628,15 +635,15 @@ def check_sms():
     if re.search(r'\d{4,}', sms):
         reasons.append("Contains large numbers")
 
-    if any(x in sms for x in ["rs","₹","money","cash"]):
+    if any(x in sms for x in ["rs", "₹", "money", "cash"]):
         score += 3
         reasons.append("Money-related content")
 
-    if any(x in sms for x in ["win","free","claim","urgent"]):
+    if any(x in sms for x in ["win", "free", "claim", "urgent"]):
         score += 3
         reasons.append("Scam keywords")
 
-    if any(x in sms for x in ["withdraw","transfer","credited"]):
+    if any(x in sms for x in ["withdraw", "transfer", "credited"]):
         score += 3
         reasons.append("Financial words")
 
@@ -653,10 +660,32 @@ def check_sms():
                 score += 3
                 reasons.append("ML model flagged")
 
-        except:
-            pass
+        except Exception as e:
+            print("SMS Model Error:", e)
 
     result = get_result(score)
+
+    # Save Scan History
+    try:
+        cursor.execute(
+            """
+            INSERT INTO scans
+            (user_id, type, input_data, score, result)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (
+                1,
+                "SMS",
+                sms,
+                score,
+                result
+            )
+        )
+
+        db.commit()
+
+    except Exception as e:
+        print("Scan Save Error:", e)
 
     return jsonify({
         "score": score,
