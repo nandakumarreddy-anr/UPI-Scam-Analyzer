@@ -68,9 +68,6 @@ try:
     db.commit()
     
     print("✅ Tables Created Successfully")
-    cursor.execute("DELETE FROM users")
-    db.commit()
-    print("✅ USERS TABLE CLEARED")
 
 except Exception as e:
     print("❌ PostgreSQL Connection Error:", str(e))
@@ -99,6 +96,7 @@ except:
 
 # ---------------- OTP STORAGE ----------------
 otp_storage = {}
+reset_otp_storage = {}
 
 # ---------------- EMAIL ----------------
 def send_email(to_email, subject, body):
@@ -187,35 +185,20 @@ def register():
     return render_template("register.html")
 
 # ---------------- VERIFY OTP ----------------
-@app.route('/verify_otp', methods=['POST'])
-def verify_otp():
+@app.route('/verify_reset_otp', methods=['POST'])
+def verify_reset_otp():
 
     email = request.form['email']
-    user_otp = request.form['otp']
+    otp = request.form['otp']
 
-    if email in otp_storage:
+    if email in reset_otp_storage:
 
-        otp, name, password = otp_storage[email]
+        if reset_otp_storage[email] == otp:
 
-        if user_otp == otp:
-
-            hashed = bcrypt.hashpw(
-                password.encode('utf-8'),
-                bcrypt.gensalt()
-            ).decode('utf-8')
-
-            print("HASH =", hashed)
-
-            cursor.execute(
-                "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)",
-                (name, email, hashed)
+            return render_template(
+                "reset_password.html",
+                email=email
             )
-
-            db.commit()
-
-            otp_storage.pop(email)
-
-            return redirect('/login')
 
     return "Invalid OTP ❌"
 # ---------------- LOGIN ----------------
@@ -271,33 +254,76 @@ def login():
 def logout():
     session.clear()
     return redirect('/login')
-# ---------------- forgot password ----------------
-@app.route('/forgot', methods=['GET','POST'])
+#--------------registration-----------------
+@app.route('/verify_otp', methods=['POST'])
+def verify_otp():
+
+    email = request.form['email']
+    user_otp = request.form['otp']
+
+    if email in otp_storage:
+
+        otp, name, password = otp_storage[email]
+
+        if user_otp == otp:
+
+            hashed = bcrypt.hashpw(
+                password.encode('utf-8'),
+                bcrypt.gensalt()
+            ).decode('utf-8')
+
+            cursor.execute(
+                "INSERT INTO users (name, email, password) VALUES (%s, %s, %s)",
+                (name, email, hashed)
+            )
+
+            db.commit()
+
+            otp_storage.pop(email)
+
+            return redirect('/login')
+
+    return "Invalid OTP ❌"
+# ---------------- FORGOT PASSWORD ----------------
+@app.route('/forgot', methods=['GET', 'POST'])
 def forgot():
+
+    if cursor is None:
+        return "Database connection failed ❌"
+
     if request.method == 'POST':
+
         email = request.form['email']
 
-        otp = str(random.randint(100000,999999))
-        otp_storage[email] = otp
+        cursor.execute(
+            "SELECT * FROM users WHERE email=%s",
+            (email,)
+        )
+
+        user = cursor.fetchone()
+
+        if not user:
+            return "Email not found ❌"
+
+        otp = str(random.randint(100000, 999999))
+
+        reset_otp_storage[email] = otp
 
         print(f"RESET OTP for {email}: {otp}")
 
-        return render_template("reset_otp.html", email=email)
+        return render_template(
+            "reset_otp.html",
+            email=email
+        )
 
     return render_template("forgot.html")
-# ----------------  ROUTE EXISTS ----------------
-@app.route('/verify_reset_otp', methods=['POST'])
-def verify_reset_otp():
-    email = request.form['email']
-    otp = request.form['otp']
-
-    if email in otp_storage and otp_storage[email] == otp:
-        return render_template("new_password.html", email=email)
-
-    return "Invalid OTP ❌"
-# ---------------- update password ----------------
+# ---------------- UPDATE PASSWORD ----------------
 @app.route('/update_password', methods=['POST'])
 def update_password():
+
+    if cursor is None:
+        return "Database connection failed ❌"
+
     email = request.form['email']
     password = request.form['password']
     confirm = request.form['confirm']
@@ -308,16 +334,16 @@ def update_password():
     hashed = bcrypt.hashpw(
         password.encode('utf-8'),
         bcrypt.gensalt()
-        ).decode('utf-8')
-        
+    ).decode('utf-8')
+
     cursor.execute(
         "UPDATE users SET password=%s WHERE email=%s",
         (hashed, email)
     )
+
     db.commit()
 
-    # remove OTP after use
-    otp_storage.pop(email, None)
+    reset_otp_storage.pop(email, None)
 
     return redirect('/login')
 # ---------------- DASHBOARD ----------------
