@@ -250,7 +250,8 @@ def login():
             return "Invalid Password ❌"
 
         except Exception as e:
-            print("Login Error:", str(e))
+            print("Stored Password =", stored)
+            print("Stored Password =", stored)
             return "Password format error ❌"
 
     return render_template("login.html")
