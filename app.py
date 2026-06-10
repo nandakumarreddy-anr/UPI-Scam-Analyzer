@@ -1,7 +1,7 @@
 import email
 
 from flask import Flask, render_template, request, redirect, jsonify, session
-import mysql.connector
+import psycopg2
 import bcrypt
 import re
 import random
@@ -18,29 +18,24 @@ ADMIN_EMAIL = "nandakumarreddy63@gmail.com"
 
 # ---------------- DATABASE ----------------
 
-import mysql.connector
+import psycopg2
 import os
 
 try:
-    print("DB_HOST =", os.getenv("DB_HOST"))
-    print("DB_PORT =", os.getenv("DB_PORT"))
-    print("DB_USER =", os.getenv("DB_USER"))
-    print("DB_NAME =", os.getenv("DB_NAME"))
-
-    db = mysql.connector.connect(
+    db = psycopg2.connect(
         host=os.getenv("DB_HOST"),
-        port=int(os.getenv("DB_PORT", "11510")),
+        port=os.getenv("DB_PORT"),
+        database=os.getenv("DB_NAME"),
         user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME")
+        password=os.getenv("DB_PASSWORD")
     )
 
-    cursor = db.cursor(buffered=True)
+    cursor = db.cursor()
 
-    print("✅ Database Connected Successfully")
+    print("✅ PostgreSQL Connected Successfully")
 
 except Exception as e:
-    print("❌ Database Connection Error:", str(e))
+    print("❌ PostgreSQL Connection Error:", str(e))
 
     db = None
     cursor = None
